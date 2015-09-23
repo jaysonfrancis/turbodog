@@ -1,8 +1,11 @@
-import sys
+import sys, csv
 from PyQt4 import QtGui
 from PyQt4.Qt import QTableWidget, QTableWidgetItem
 from PyQt4.QtGui import * 
 from PyQt4.QtCore import * 
+from xlsxwriter.workbook import Workbook
+import xlsxwriter
+
 #
 class Window(QtGui.QMainWindow):    
     
@@ -74,6 +77,41 @@ class Window(QtGui.QMainWindow):
       self.progress.setValue(self.completed)
       
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
+      print fname
+      
+      with open(fname, 'rb') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)
+        for row in reader:
+          print row
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      
  #     f = open(fname, 'r')
       
  #     with f:
