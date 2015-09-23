@@ -72,41 +72,37 @@ class Window(QtGui.QMainWindow):
               
 
         self.show()
+        
     
-          
     def convertData(self):
       self.completed = 0
       self.progress.setValue(self.completed)
       
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
-      print fname
+      print fname # Debug
       
       workbook = xlsxwriter.Workbook("test.xlsx", {'strings_to_numbers': True})
       
       chartworksheet = workbook.add_worksheet("Charts")
       dataworksheet = workbook.add_worksheet("Data")
 
-      
+      self.statusBar().showMessage('Reading data....')
       with open (fname, 'r') as f:
         reader = csv.reader(f)
         for r, row in enumerate(reader):
           for c, col in enumerate(row):
               dataworksheet.write(r, c, col)
-           #   updateProgress(self)
-           #   self.statusBar().showMessage('Reading data....')
+              updateProgress(self)
+
        
-      
+      self.statusBar().showMessage('Setting up charts...')
       chart = workbook.add_chart({'type': 'line'})
-      chart.set_x_axis({'date_axis': True})
       chart.set_size({'width': 1400, 'height': 900})
       chart.set_legend({'position': 'bottom'})
-
-      
       chart.set_plotarea({
                           'border': {'color': 'red', 'width': 2, 'dash_type': 'dash'},
                           'fill':   {'color': '#FFFFC2'}
-    })
-      
+    })  
       chart.set_title({
                        'name': 'Monitor',
                        'name_font': {
@@ -114,9 +110,10 @@ class Window(QtGui.QMainWindow):
                                      'color': 'blue',
                                      },
                        })
-      
       chart.set_x_axis({
                         'name': 'Timestamp',
+                 #       'position_axis': 'on_tick',
+                 #       'date_axis': True,
                         'name_font': {
                                       'name': 'Courier New',
                                       'color': '#92D050'
@@ -126,13 +123,12 @@ class Window(QtGui.QMainWindow):
                                      'color': '#00B0F0',
                                      },
                         })
-      
+    
       chart.add_series({'values': '=Data!$B$2:$B$58000', 'categories': '=Data!$A$1:$A$58000', 'name': 'X-Axis'})
       chart.add_series({'values': '=Data!$C$2:$C$58000', 'categories': '=Data!$A$1:$A$58000', 'name': 'Y-Axis'})
       chart.add_series({'values': '=Data!$D$2:$D$58000', 'categories': '=Data!$A$1:$A$58000', 'name': 'Z-Axis'})
       
       chartworksheet.insert_chart('A1', chart)
-      
       workbook.close()
 
       if fname:
@@ -143,10 +139,7 @@ class Window(QtGui.QMainWindow):
           self.statusBar().showMessage('Completed Conversion')
 
       os.system("test.xlsx")
-    
-  
-    
-    
+   
     # Method for emailing data
     def emailData(self):
       print "Email Data"  
@@ -187,7 +180,12 @@ class Window(QtGui.QMainWindow):
 
       self.move(qr.topLeft())  # Move the top-left point of application window to top-left point of the qr rectangle, thus centering the screen
 
-    
+def updateProgress(self):
+    if self.completed < 100:
+      self.completed += 0.0001 
+      self.progress.setValue(self.completed)
+    else: 
+      self.statusBar().showMessage('Completed Conversion')           
 
                      
 def main():    
