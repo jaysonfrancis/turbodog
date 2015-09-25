@@ -1,18 +1,14 @@
-import sys, csv
+import sys, csv, os, xlsxwriter
 from PyQt4 import QtGui
-from PyQt4.Qt import QTableWidget, QTableWidgetItem
 from PyQt4.QtGui import * 
 from PyQt4.QtCore import * 
-from xlsxwriter.workbook import Workbook
-import xlsxwriter
-import os
+import plotly.plotly as py
+from plotly.graph_objs import *
 
-#
 class Window(QtGui.QMainWindow):    
     
     def __init__(self):
         super(Window, self).__init__()
-     #   self.setGeometry(300, 300, 430, 150)  # (Position X, Position Y, Width, Height)
         self.setFixedSize(430,150)
         self.center()  # Custom method to center screen
         self.setWindowTitle('Children\'s Monitor (Senior Design 191)')  # Change title of window
@@ -32,7 +28,7 @@ class Window(QtGui.QMainWindow):
         convertAction.triggered.connect(self.convertData)
         
         uploadAction = QtGui.QAction(QtGui.QIcon('upload.png'), '&Upload', self)
-        uploadAction.setStatusTip('Upload Data Online')
+        uploadAction.setStatusTip('Interactive Chart (Plotly)')
         uploadAction.triggered.connect(self.uploadData)
         
         emailAction = QtGui.QAction(QtGui.QIcon('email.png'), '&Email', self)
@@ -54,8 +50,7 @@ class Window(QtGui.QMainWindow):
   
         self.toolbar = self.addToolBar('Exit')
         self.toolbar.addAction(exitAction)        
-        
-        
+               
         menubar = self.menuBar()  # Create a menubar. Create a 'File' menu and append the exit action to the file menu.
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(convertAction)
@@ -64,16 +59,13 @@ class Window(QtGui.QMainWindow):
         fileMenu.addAction(exitAction)
         
         helpMenu = menubar.addMenu('&Help')
-        helpMenu.addAction(aboutAction)
-        
+        helpMenu.addAction(aboutAction)       
         
         self.progress = QtGui.QProgressBar(self)
         self.progress.setGeometry(180,127,250,20)
               
-
         self.show()
-        
-    
+          
     def convertData(self):
       self.completed = 0
       self.progress.setValue(self.completed)
@@ -94,7 +86,6 @@ class Window(QtGui.QMainWindow):
               dataworksheet.write(r, c, col)
               updateProgress(self)
 
-       
       self.statusBar().showMessage('Setting up charts...')
       chart = workbook.add_chart({'type': 'line'})
       chart.set_size({'width': 1400, 'height': 900})
@@ -143,15 +134,67 @@ class Window(QtGui.QMainWindow):
     # Method for emailing data
     def emailData(self):
       print "Email Data"  
-      self.fileDialog = QtGui.QFileDialog(self)
-      self.fileDialog.show()
-    
+      fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
+      print fname # Debug
+
     # Method for uploading data to cloud  
     def uploadData(self):
-      print "Upload Data"  
-      self.fileDialog = QtGui.QFileDialog(self)
-      self.fileDialog.show() 
-            
+      self.completed = 0
+      self.progress.setValue(self.completed)
+
+      fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
+      print fname # Debug
+      self.statusBar().showMessage('Uploading data. Please wait...')
+      def getColumn(filename, column):
+        results = csv.reader(open(filename, 'rU'), delimiter=",")
+        return [result[column] for result in results]
+
+      timestamp = getColumn(fname,0)
+      xaxis = getColumn(fname,1)
+      yaxis = getColumn(fname,2)
+      zaxis = getColumn(fname,3)
+
+      trace1 = Scatter(
+        x=timestamp,
+        y=xaxis,
+        name='x-axis',
+        marker=Marker(color='rgb(55, 83, 109)')
+        )
+
+      trace2 = Scatter(
+        x=timestamp,
+        y=yaxis,
+        name='y-axis',
+        marker=Marker(color='rgb(234, 153, 153)')
+        )
+      trace3 = Scatter(
+        x=timestamp,
+        y=zaxis,
+        name='z-axis',
+        marker=Marker(color='green')
+        )
+
+      layout = Layout(
+        title='Data Analysis',
+        xaxis=XAxis(
+        showgrid=False,
+        ),
+        yaxis=YAxis(
+        title='Points',
+        showline=False
+        ),
+        barmode='group'
+ 
+        )
+      data = Data([trace1, trace2, trace3])
+
+      fig = Figure(data=data, layout=layout)
+      plot_url = py.plot(fig, filename='output')
+      print plot_url
+      
+      self.statusBar().showMessage('Upload Complete.')   
+      self.progress.setValue(100)
+      
     # Method for window message box to verify exit
     def closeEvent(self, event):
       reply = QtGui.QMessageBox.question(self, 'Quit',
