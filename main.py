@@ -1,6 +1,7 @@
 import sys, csv, os, xlsxwriter
 from PyQt4 import QtGui
 from PyQt4.QtGui import * 
+from plotly import tools
 from PyQt4.QtCore import * 
 import plotly.plotly as py
 from plotly.graph_objs import *
@@ -90,31 +91,11 @@ class Window(QtGui.QMainWindow):
       chart = workbook.add_chart({'type': 'line'})
       chart.set_size({'width': 1400, 'height': 900})
       chart.set_legend({'position': 'bottom'})
-      chart.set_plotarea({
-                          'border': {'color': 'red', 'width': 2, 'dash_type': 'dash'},
-                          'fill':   {'color': '#FFFFC2'}
-    })  
-      chart.set_title({
-                       'name': 'Monitor',
-                       'name_font': {
-                                     'name': 'Calibri',
-                                     'color': 'blue',
-                                     },
-                       })
-      chart.set_x_axis({
-                        'name': 'Timestamp',
-                 #       'position_axis': 'on_tick',
-                 #       'date_axis': True,
-                        'name_font': {
-                                      'name': 'Courier New',
-                                      'color': '#92D050'
-                                      },
-                        'num_font': {
-                                     'name': 'Arial',
-                                     'color': '#00B0F0',
-                                     },
-                        })
-    
+      chart.set_plotarea({'border': {'color': 'red', 'width': 2, 'dash_type': 'dash'}, 'fill':   {'color': '#FFFFC2'}})  
+      chart.set_title({'name': 'Monitor','name_font': {'name': 'Calibri','color': 'blue',},})
+      chart.set_x_axis({'name': 'Timestamp','name_font': {'name': 'Courier New','color': '#92D050'},'num_font': {'name': 'Arial','color': '#00B0F0',},})    
+      
+      # Adding data to the chart
       chart.add_series({'values': '=Data!$B$2:$B$58000', 'categories': '=Data!$A$1:$A$58000', 'name': 'X-Axis'})
       chart.add_series({'values': '=Data!$C$2:$C$58000', 'categories': '=Data!$A$1:$A$58000', 'name': 'Y-Axis'})
       chart.add_series({'values': '=Data!$D$2:$D$58000', 'categories': '=Data!$A$1:$A$58000', 'name': 'Z-Axis'})
@@ -145,6 +126,7 @@ class Window(QtGui.QMainWindow):
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
       print fname # Debug
       self.statusBar().showMessage('Uploading data. Please wait...')
+      
       def getColumn(filename, column):
         results = csv.reader(open(filename, 'rU'), delimiter=",")
         return [result[column] for result in results]
@@ -154,38 +136,12 @@ class Window(QtGui.QMainWindow):
       yaxis = getColumn(fname,2)
       zaxis = getColumn(fname,3)
 
-      trace1 = Scatter(
-        x=timestamp,
-        y=xaxis,
-        name='x-axis',
-        marker=Marker(color='rgb(55, 83, 109)')
-        )
-
-      trace2 = Scatter(
-        x=timestamp,
-        y=yaxis,
-        name='y-axis',
-        marker=Marker(color='rgb(234, 153, 153)')
-        )
-      trace3 = Scatter(
-        x=timestamp,
-        y=zaxis,
-        name='z-axis',
-        marker=Marker(color='green')
-        )
-
-      layout = Layout(
-        title='Data Analysis',
-        xaxis=XAxis(
-        showgrid=False,
-        ),
-        yaxis=YAxis(
-        title='Points',
-        showline=False
-        ),
-        barmode='group'
- 
-        )
+      trace1 = Scatter(x=timestamp,y=xaxis, name='x-axis', marker=Marker(color='rgb(55, 83, 109)'))
+      trace2 = Scatter(x=timestamp,y=yaxis,name='y-axis',marker=Marker(color='rgb(234, 153, 153)'))
+      trace3 = Scatter(x=timestamp,y=zaxis,name='z-axis',marker=Marker(color='green'))
+      
+      layout = Layout(title='Data Analysis',xaxis=XAxis(showgrid=False,),yaxis=YAxis(title='Points',showline=False),barmode='group')
+      
       data = Data([trace1, trace2, trace3])
 
       fig = Figure(data=data, layout=layout)
