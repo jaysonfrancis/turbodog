@@ -136,7 +136,7 @@ class Window(QtGui.QMainWindow):
       yaxis = getColumn(fname,2)
       zaxis = getColumn(fname,3)
 
-      trace1 = Scatter(x=timestamp,y=xaxis, name='x-axis', marker=Marker(color='rgb(55, 83, 109)'))
+      trace1 = Scatter(x=timestamp,y=xaxis,name='x-axis',marker=Marker(color='rgb(55, 83, 109)'))
       trace2 = Scatter(x=timestamp,y=yaxis,name='y-axis',marker=Marker(color='rgb(234, 153, 153)'))
       trace3 = Scatter(x=timestamp,y=zaxis,name='z-axis',marker=Marker(color='green'))
       
@@ -163,12 +163,12 @@ class Window(QtGui.QMainWindow):
         # Method for window message box to verify exit
     def aboutEvent(self, event):
       QtGui.QMessageBox.question(self, 'About',
-                                         "Version 1.0\n" +
-                                         "Last Updated: 09/21/2015\n" +
-                                         "Senior Design 191\n\n" +
-                                         "Engineer: Jayson Francis\n" +
-                                         "Contact: jaysonfrancis@gmail.com",
-                                         QtGui.QMessageBox.Ok)
+                                       "Version 1.0\n" +
+                                       "Last Updated: 09/21/2015\n" +
+                                       "Senior Design 191\n\n" +
+                                       "Engineer: Jayson Francis\n" +
+                                       "Contact: jaysonfrancis@gmail.com",
+                                       QtGui.QMessageBox.Ok)
   
       
     # Method to center the application on the screen
@@ -176,7 +176,6 @@ class Window(QtGui.QMainWindow):
       qr = self.frameGeometry()  # Get a rectangle specifying the geometry of the main window. This includes any window frame.
       cp = QtGui.QDesktopWidget().availableGeometry().center()  # Figure out the screen resolution of the monitor and get the center point
       qr.moveCenter(cp)  # Set the center of rectangle to the center of the screen. 
-
       self.move(qr.topLeft())  # Move the top-left point of application window to top-left point of the qr rectangle, thus centering the screen
 
 def updateProgress(self):
