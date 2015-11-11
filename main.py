@@ -5,6 +5,10 @@ from plotly import tools
 from PyQt4.QtCore import * 
 import plotly.plotly as py
 from plotly.graph_objs import *
+from urllib import quote
+#from urllib.parse
+import webbrowser
+import et
 
 class Window(QtGui.QMainWindow):    
     
@@ -16,7 +20,7 @@ class Window(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('web.png'))  # Icon of the window
         self.statusBar().showMessage('Ready')  # First call of status bar method; Subsequent calls return the statusbar object 
         self.home()
-               
+              
     def home(self):     
         
         exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), '&Exit', self)  # Abstraction for actions performed with a menubar, toolbar, or shortcut
@@ -112,12 +116,19 @@ class Window(QtGui.QMainWindow):
 
       os.system("test.xlsx")
    
-    # Method for emailing data
+
+    
     def emailData(self):
       print "Email Data"  
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
       print fname # Debug
-
+      webbrowser.open("mailto:%s?subject=%s&body=%s&attachment=%s" %
+                  ("", quote("Logfile"), quote('Emailing Datasheet - Please attach'), quote("hello.world.xlsx"))
+                  )
+   
+    #  et.mailto("jayson@hpe.com", to="None", cc="None", bcc="None", subject="None", body="None")
+      
+        
     # Method for uploading data to cloud  
     def uploadData(self):
       self.completed = 0
