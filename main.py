@@ -6,9 +6,12 @@ from PyQt4.QtCore import *
 import plotly.plotly as py
 from plotly.graph_objs import *
 from urllib import quote
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
 #from urllib.parse
 import webbrowser
-import et
+import et, time
 
 class Window(QtGui.QMainWindow):    
     
@@ -97,7 +100,7 @@ class Window(QtGui.QMainWindow):
       chart.set_legend({'position': 'bottom'})
       chart.set_plotarea({'border': {'color': 'red', 'width': 2, 'dash_type': 'dash'}, 'fill':   {'color': '#FFFFC2'}})  
       chart.set_title({'name': 'Monitor','name_font': {'name': 'Calibri','color': 'blue',},})
-      chart.set_x_axis({'name': 'Timestamp','name_font': {'name': 'Courier New','color': '#92D050'},'num_font': {'name': 'Arial','color': '#00B0F0',},})    
+      chart.set_x_axis({'name': 'Timestamp', 'position_axis': 'between', 'interval_unit': 1, 'name_font': {'name': 'Courier New','color': '#92D050'},'num_font': {'name': 'Arial','color': '#00B0F0',},})    
       
       # Adding data to the chart
       chart.add_series({'values': '=Data!$B$2:$B$58000', 'categories': '=Data!$A$1:$A$58000', 'name': 'X-Axis'})
@@ -151,7 +154,18 @@ class Window(QtGui.QMainWindow):
       trace2 = Scatter(x=timestamp,y=yaxis,name='y-axis',marker=Marker(color='rgb(234, 153, 153)'))
       trace3 = Scatter(x=timestamp,y=zaxis,name='z-axis',marker=Marker(color='green'))
       
-      layout = Layout(title='Data Analysis',xaxis=XAxis(showgrid=False,),yaxis=YAxis(title='Points',showline=False),barmode='group')
+      
+      layout = Layout(title='Data Analysis',xaxis=XAxis(showgrid=False,
+                                                         title='Timestamp [HH:MM:SS]', # x-axis title 
+        gridcolor='white',  # white grid lines
+        gridwidth=2,        # bigger grid lines
+        zeroline=False,     # remove thick zero line
+        ticks='outside',    # draw ticks outside axes
+        autotick=False,     # (!) overwrite default tick options
+        dtick=100,          # (!) set distance between ticks  
+        ticklen=8,          # (!) set tick length
+        tickwidth=1.5       #     and width
+        ),yaxis=YAxis(title='Points',showline=False),barmode='group')
       
       data = Data([trace1, trace2, trace3])
 
@@ -199,6 +213,15 @@ def updateProgress(self):
                      
 def main():    
     app = QtGui.QApplication(sys.argv)
+    
+    splash_pix = QPixmap('splash.png')
+    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+    splash.setMask(splash_pix.mask())
+    splash.show()
+    app.processEvents()
+    time.sleep(4)
+    splash.close()
+    
     GUI = Window()
     sys.exit(app.exec_())
     
