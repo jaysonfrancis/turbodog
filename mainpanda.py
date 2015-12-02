@@ -5,10 +5,13 @@ from plotly import tools
 from PyQt4.QtCore import * 
 import plotly.plotly as py
 from plotly.graph_objs import *
-from urllib import quote
+#from urllib import quote
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+import matplotlib.pyplot as plt
 import pandas as pd
+from itertools import cycle, islice
+
 
 #from urllib.parse
 import webbrowser
@@ -33,7 +36,7 @@ class Window(QtGui.QMainWindow):
         exitAction.triggered.connect(self.closeEvent)  # A triggered signal is emitted. The signal is connected to the quit() method which terminates application
         
         convertAction = QtGui.QAction(QtGui.QIcon('convert.png'), '&Convert', self)
-        convertAction.setStatusTip('Convert Raw Data')
+        convertAction.setStatusTip('Convert Data to Excel')
         convertAction.triggered.connect(self.convertData)
         
         uploadAction = QtGui.QAction(QtGui.QIcon('upload.png'), '&Upload', self)
@@ -44,13 +47,16 @@ class Window(QtGui.QMainWindow):
         emailAction.setStatusTip('Email Data')
         emailAction.triggered.connect(self.emailData)
         
-        pandaAction = QtGui.QAction(QtGui.QIcon('help.png'), '&Panda', self)
-        pandaAction.setStatusTip('About')
+        pandaAction = QtGui.QAction(QtGui.QIcon('graph.png'), '&Panda', self)
+        pandaAction.setStatusTip('Convert Data to Plots')
         pandaAction.triggered.connect(self.panda)
         
         aboutAction = QtGui.QAction(QtGui.QIcon('help.png'), '&About', self)
         aboutAction.setStatusTip('About')
         aboutAction.triggered.connect(self.aboutEvent)
+                        
+        self.toolbar = self.addToolBar('Panda')
+        self.toolbar.addAction(pandaAction)
         
         self.toolbar = self.addToolBar('Convert')
         self.toolbar.addAction(convertAction)
@@ -60,15 +66,14 @@ class Window(QtGui.QMainWindow):
         
         self.toolbar = self.addToolBar('Email')
         self.toolbar.addAction(emailAction)
-        
-        self.toolbar = self.addToolBar('Panda')
-        self.toolbar.addAction(pandaAction)
+
   
         self.toolbar = self.addToolBar('Exit')
         self.toolbar.addAction(exitAction)        
                
         menubar = self.menuBar()  # Create a menubar. Create a 'File' menu and append the exit action to the file menu.
         fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(pandaAction)
         fileMenu.addAction(convertAction)
         fileMenu.addAction(uploadAction)
         fileMenu.addAction(emailAction)
@@ -87,18 +92,28 @@ class Window(QtGui.QMainWindow):
       pd.set_option('display.mpl_style', 'default')
       
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
-      print fname # Debug
-      
+      #print fname # Debug
+
+      while self.completed < 100:
+        self.completed += 0.0001
+        self.progress.setValue(self.completed)
+      else:
+        self.statusBar().showMessage('Data converted, now opening...')
+        
       data = pd.read_csv(fname, parse_dates=['Timestamp'], index_col='Timestamp')
-      data.plot(figsize=(15, 10))
+      #my_colors = list(islice(cycle(['b', 'r', 'g', 'y', 'k']), None, len(data)))
+      data.plot(figsize=(15, 10), title='Children\'s Monitor Analysis',subplots=True)
+      data.plot(figsize=(15, 10), title='Children\'s Monitor Analysis (Combined)')
+      #data.plot(['Timestamp'],['X-Axis'], figsize=(15,10))
       
+      self.statusBar().showMessage('Plots completed')
                   
     def convertData(self):
       self.completed = 0
       self.progress.setValue(self.completed)
       
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
-      print fname # Debug
+     # print fname # Debug
       
       workbook = xlsxwriter.Workbook("test.xlsx", {'strings_to_numbers': True})
       
@@ -141,9 +156,9 @@ class Window(QtGui.QMainWindow):
 
     
     def emailData(self):
-      print "Email Data"  
+   #   print "Email Data"  
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
-      print fname # Debug
+   #   print fname # Debug
       webbrowser.open("mailto:%s?subject=%s&body=%s&attachment=%s" %
                   ("", quote("Logfile"), quote('Emailing Datasheet - Please attach'), quote("hello.world.xlsx"))
                   )
@@ -157,7 +172,7 @@ class Window(QtGui.QMainWindow):
       self.progress.setValue(self.completed)
 
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
-      print fname # Debug
+   #   print fname # Debug
       self.statusBar().showMessage('Uploading data. Please wait...')
       
       def getColumn(filename, column):
@@ -190,7 +205,7 @@ class Window(QtGui.QMainWindow):
 
       fig = Figure(data=data, layout=layout)
       plot_url = py.plot(fig, filename='output')
-      print plot_url
+   #   print plot_url
       
       self.statusBar().showMessage('Upload Complete.')   
       self.progress.setValue(100)
