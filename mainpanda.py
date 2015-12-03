@@ -7,15 +7,14 @@ import plotly.plotly as py
 from plotly.graph_objs import *
 #from urllib import quote
 from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
-from itertools import cycle, islice
+#from itertools import cycle, islice
 
 
 #from urllib.parse
 import webbrowser
-import et, time
+import time
 
 class Window(QtGui.QMainWindow):    
     
@@ -90,6 +89,7 @@ class Window(QtGui.QMainWindow):
       self.completed = 0
       self.progress.setValue(self.completed)
       pd.set_option('display.mpl_style', 'default')
+     # matplotlib.rc
       
       fname = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
       #print fname # Debug
@@ -99,7 +99,13 @@ class Window(QtGui.QMainWindow):
         self.progress.setValue(self.completed)
       else:
         self.statusBar().showMessage('Data converted, now opening...')
-        
+      
+      font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 22}
+      import matplotlib
+      matplotlib.rc('font', **font)
+
       data = pd.read_csv(fname, parse_dates=['Timestamp'], index_col='Timestamp')
       #my_colors = list(islice(cycle(['b', 'r', 'g', 'y', 'k']), None, len(data)))
       data.plot(figsize=(15, 10), title='Children\'s Monitor Analysis',subplots=True)
