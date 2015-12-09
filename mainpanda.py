@@ -9,6 +9,7 @@ from PyQt4.QtCore import *
 import pandas as pd
 import webbrowser
 import time
+import datetime as dt
 
 #from itertools import cycle, islice
 #from PyQt4.QtCore import * 
@@ -102,14 +103,23 @@ class Window(QtGui.QMainWindow):
       
       font = {'family' : 'normal',
         'weight' : 'bold',
-        'size'   : 22}
+        'size'   : 15}
       import matplotlib
       matplotlib.rc('font', **font)
+      
 
-      data = pd.read_csv(fname, parse_dates=['Timestamp'], index_col='Timestamp')
+
+     # data = pd.read_csv(fname, parse_dates=True, index_col='Timestamp', date_parser=convert_time)
+      parse = lambda x: dt.datetime.strptime(x, '%H:%M:%S:%f')
+      data = pd.read_csv(fname, parse_dates={'Timestamp'},index_col=0, date_parser=parse)
+      #data = pd.read_csv(fname, index_col=0, error_bad_lines=False)
+      #data.drop(data.columns[[4,5]], axis=0, inplace=True)
+      data.pop('Lon')
+      data.pop('Lat')
       #my_colors = list(islice(cycle(['b', 'r', 'g', 'y', 'k']), None, len(data)))
       data.plot(figsize=(15, 10), title='Children\'s Monitor Analysis',subplots=True)
-      data.plot(figsize=(15, 10), title='Children\'s Monitor Analysis (Combined)')
+      data.plot(figsize=(15, 10), title='Children\'s Monitor Analysis (Combined w/ Depth)', style='x')
+      data.plot(figsize=(15, 10), title='Children\'s Monitor Analysis (Combined w/ Slopes)')
       #data.plot(['Timestamp'],['X-Axis'], figsize=(15,10))
       
       self.statusBar().showMessage('Plots completed')
