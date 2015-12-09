@@ -2,19 +2,19 @@ import sys, csv, os, xlsxwriter
 from PyQt4 import QtGui
 from PyQt4.QtGui import * 
 from plotly import tools
-from PyQt4.QtCore import * 
 import plotly.plotly as py
 from plotly.graph_objs import *
-#from urllib import quote
+from urllib import quote
 from PyQt4.QtCore import *
-#import matplotlib.pyplot as plt
 import pandas as pd
-#from itertools import cycle, islice
-
-
-#from urllib.parse
 import webbrowser
 import time
+
+#from itertools import cycle, islice
+#from PyQt4.QtCore import * 
+#import matplotlib.pyplot as plt
+#from urllib.parse
+
 
 class Window(QtGui.QMainWindow):    
     
